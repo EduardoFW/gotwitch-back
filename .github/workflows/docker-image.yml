@@ -6,11 +6,22 @@ on:
 
 jobs:
 
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
+    steps: 
+    - name: Run the tests
+      uses: actions/checkout@v2
+      uses: actions/setup-go@v2
+      run: go test ./...
+
+  deploy:
+    runs-on: self-hosted
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag twitchgo:$(date +%s)
+    - name: Deploy the app
+      uses: actions/checkout@v2
+      env:
+        TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+        TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+      run: docker-compose up -d
