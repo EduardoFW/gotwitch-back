@@ -19,6 +19,8 @@ jobs:
   deploy:
     runs-on: self-hosted
 
+    needs: [ test ]
+
     steps:
     - uses: actions/checkout@v2
     - name: Deploy on self-hosted
