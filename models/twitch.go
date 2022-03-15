@@ -31,3 +31,14 @@ type StreamResponse struct {
 	Data       []Stream   `json:"data"`
 	Pagination Pagination `json:"pagination"`
 }
+
+type Category struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	BoxArtUrl string `json:"box_art_url"`
+}
+
+type CategoryResponse struct {
+	Data       []Category `json:"data"`
+	Pagination Pagination `json:"pagination"`
+}

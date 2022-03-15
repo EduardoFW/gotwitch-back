@@ -2,6 +2,7 @@ package v1
 
 import (
 	"math/rand"
+	"strconv"
 
 	"api.gotwitch.tk/controllers"
 	"api.gotwitch.tk/models"
@@ -54,4 +55,31 @@ func GetRandomStream(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"data": streams[index],
 	})
+}
+
+func SearchCategories(c *gin.Context) {
+	tokenString, err := controllers.GetTokenManager().GetToken()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	first, _ := strconv.Atoi(c.DefaultQuery("first", "100"))
+	params := &services.SearchCategoriesParams{
+		Query: c.Query("query"),
+		First: first,
+		After: c.Query("after"),
+	}
+
+	resp, err := services.SearchCategories(tokenString, settings.ServerSettings.TwitchClientID, params)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, resp)
 }

@@ -2,8 +2,8 @@ package routers
 
 import (
 	v1 "api.gotwitch.tk/controllers/v1"
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // InitRouter initialize routing information
@@ -20,6 +20,7 @@ func InitRouter() *gin.Engine {
 
 		// RandomStream
 		apiV1.GET("/random-stream", v1.GetRandomStream)
+		apiV1.GET("/search-category", v1.SearchCategories)
 	}
 
 	return r
