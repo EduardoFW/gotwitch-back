@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"api.gotwitch.tk/models"
 )
@@ -30,17 +31,49 @@ func GetTwitchToken(clientID string, clientSecret string) (*models.TwitchToken, 
 	return &token, nil
 }
 
-func GetStreamList(token string, clientId, after string) (*models.StreamResponse, error) {
+type GetStreamListParams struct {
+	After      string
+	Before     string
+	First      int // max 100
+	Game_id    string
+	Language   string
+	User_id    string
+	User_login string
+}
+
+func GetStreamList(token string, clientId string, params *GetStreamListParams) (*models.StreamResponse, error) {
 	var streamResponse models.StreamResponse
 	client := http.Client{}
 
-	// Querystring parameters
-	params := "?first=100"
-	if after != "" {
-		params += "&after=" + after
+	// Default params
+	if params.First == 0 {
+		params.First = 100
 	}
 
-	url := "https://api.twitch.tv/helix/streams" + params
+	// Transform struct to map
+	paramsMap := make(map[string]string)
+	paramsMap["after"] = params.After
+	paramsMap["before"] = params.Before
+	paramsMap["first"] = strconv.Itoa(params.First)
+	paramsMap["game_id"] = params.Game_id
+	paramsMap["language"] = params.Language
+	paramsMap["user_id"] = params.User_id
+	paramsMap["user_login"] = params.User_login
+
+	// Build query string
+	queryString := ""
+	for key, value := range paramsMap {
+		if value != "" {
+			if queryString == "" {
+				queryString += "?"
+			} else {
+				queryString += "&"
+			}
+			queryString += key + "=" + value
+		}
+	}
+
+	url := "https://api.twitch.tv/helix/streams" + queryString
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

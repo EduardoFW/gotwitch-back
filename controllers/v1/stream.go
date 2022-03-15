@@ -28,10 +28,13 @@ func GetRandomStream(c *gin.Context) {
 	var streams []models.Stream
 	var after string
 
+	params := &services.GetStreamListParams{}
+
 	// Buffer all pages
 	for i := 0; i < pages; i++ {
 
-		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, after)
+		params.After = after
+		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, params)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err.Error(),
