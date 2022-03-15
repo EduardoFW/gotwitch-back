@@ -3,6 +3,7 @@ package v1
 import (
 	"math/rand"
 
+	"api.gotwitch.tk/controllers"
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/services"
 	"api.gotwitch.tk/settings"
@@ -12,7 +13,7 @@ import (
 func GetRandomStream(c *gin.Context) {
 	maxPageSize := 10
 
-	token, err := services.GetTwitchToken(settings.ServerSettings.TwitchClientID, settings.ServerSettings.TwitchClientSecret)
+	tokenString, err := controllers.GetTokenManager().GetToken()
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
@@ -29,7 +30,7 @@ func GetRandomStream(c *gin.Context) {
 
 	for i := 0; i < pages; i++ {
 
-		stream, err := services.GetStreamList(token, settings.ServerSettings.TwitchClientID, after)
+		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, after)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err.Error(),

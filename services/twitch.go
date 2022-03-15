@@ -8,26 +8,26 @@ import (
 	"api.gotwitch.tk/models"
 )
 
-func GetTwitchToken(clientID string, clientSecret string) (string, error) {
+func GetTwitchToken(clientID string, clientSecret string) (*models.TwitchToken, error) {
 	var token models.TwitchToken
 
 	resp, err := http.Post("https://id.twitch.tv/oauth2/token?client_id="+clientID+"&client_secret="+clientSecret+"&grant_type=client_credentials", "application/json", nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&token)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	if token.AccessToken == "" {
-		return "", errors.New("No access token returned")
+		return nil, errors.New("No access token returned")
 	}
 
-	return string(token.AccessToken), nil
+	return &token, nil
 }
 
 func GetStreamList(token string, clientId, after string) (*models.StreamResponse, error) {
