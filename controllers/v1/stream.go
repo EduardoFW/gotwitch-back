@@ -28,6 +28,7 @@ func GetRandomStream(c *gin.Context) {
 	var streams []models.Stream
 	var after string
 
+	// Buffer all pages
 	for i := 0; i < pages; i++ {
 
 		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, after)
