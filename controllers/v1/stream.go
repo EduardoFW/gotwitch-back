@@ -34,6 +34,8 @@ func GetRandomStream(c *gin.Context) {
 	for i := 0; i < pages; i++ {
 
 		params.After = after
+		params.Language = c.QueryArray("language")
+		params.GameId = c.QueryArray("game_id")
 		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, params)
 		if err != nil {
 			c.JSON(500, gin.H{

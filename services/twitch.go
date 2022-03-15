@@ -32,13 +32,13 @@ func GetTwitchToken(clientID string, clientSecret string) (*models.TwitchToken, 
 }
 
 type GetStreamListParams struct {
-	After      string   `url:"after"`
-	Before     string   `url:"before"`
-	First      int      `url:"first"`
-	Game_id    []string `url:"game_id"`
-	Language   []string `url:"language"`
-	User_id    []string `url:"user_id"`
-	User_login []string `url:"user_login"`
+	After     string   `url:"after"`
+	Before    string   `url:"before"`
+	First     int      `url:"first"`
+	GameId    []string `url:"game_id"`
+	Language  []string `url:"language"`
+	UserId    []string `url:"user_id"`
+	UserLogin []string `url:"user_login"`
 }
 
 func GetStreamList(token string, clientId string, params *GetStreamListParams) (*models.StreamResponse, error) {
