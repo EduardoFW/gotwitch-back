@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/EduardoWeber/twitch-go/models"
+	"api.gotwitch.tk/models"
 )
 
 func GetTwitchToken(clientID string, clientSecret string) (string, error) {

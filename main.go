@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/EduardoWeber/twitch-go/routers"
-	"github.com/EduardoWeber/twitch-go/settings"
+	"api.gotwitch.tk/routers"
+	"api.gotwitch.tk/settings"
 )
 
 func init() {

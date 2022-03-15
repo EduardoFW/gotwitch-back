@@ -3,9 +3,9 @@ package v1
 import (
 	"math/rand"
 
-	"github.com/EduardoWeber/twitch-go/models"
-	"github.com/EduardoWeber/twitch-go/services"
-	"github.com/EduardoWeber/twitch-go/settings"
+	"api.gotwitch.tk/models"
+	"api.gotwitch.tk/services"
+	"api.gotwitch.tk/settings"
 	"github.com/gin-gonic/gin"
 )
 

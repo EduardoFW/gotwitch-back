@@ -1,4 +1,4 @@
-module github.com/EduardoWeber/twitch-go
+module api.gotwitch.tk
 
 go 1.17
 
