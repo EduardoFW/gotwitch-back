@@ -50,6 +50,13 @@ func GetRandomStream(c *gin.Context) {
 	}
 
 	// Random number between 0 and len(streams)
+	if len(streams) == 0 {
+		c.JSON(500, gin.H{
+			"error": "No streams found",
+		})
+		return
+	}
+
 	index := rand.Intn(len(streams))
 
 	c.JSON(200, gin.H{
