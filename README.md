@@ -1,7 +1,7 @@
 # twitchgo-back
 
 ## Introduction
-This is the backend for [gotwitch.tk](https://gotwitch.tk), PR's are welcome.
+This is the backend for [gotwitch.efw.rocks](https://gotwitch.efw.rocks), PR's are welcome.
 You can find the frontend at [github.com/EduardoFW/gotwitch-front](https://github.com/EduardoFW/gotwitch-front)
 
 ## Todo list
