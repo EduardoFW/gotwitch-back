@@ -6,6 +6,7 @@ import (
 
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
+	"api.gotwitch.tk/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,6 +22,9 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	println("Adding database migrations...")
+	settings.DB.AutoMigrate(&models.Stream{})
 
 	println("Finished initializing.")
 }
