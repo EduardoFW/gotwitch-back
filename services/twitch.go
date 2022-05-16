@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"api.gotwitch.tk/models"
+	"api.gotwitch.tk/interfaces"
 	"github.com/google/go-querystring/query"
 )
 
-func GetTwitchToken(clientID string, clientSecret string) (*models.TwitchToken, error) {
-	var token models.TwitchToken
+func GetTwitchToken(clientID string, clientSecret string) (*interfaces.TwitchToken, error) {
+	var token interfaces.TwitchToken
 
 	resp, err := http.Post("https://id.twitch.tv/oauth2/token?client_id="+clientID+"&client_secret="+clientSecret+"&grant_type=client_credentials", "application/json", nil)
 	if err != nil {
@@ -42,8 +42,8 @@ type GetStreamListParams struct {
 	UserLogin []string `url:"user_login"`
 }
 
-func GetStreamList(token string, clientId string, params *GetStreamListParams) (*models.StreamResponse, error) {
-	var streamResponse models.StreamResponse
+func GetStreamList(token string, clientId string, params *GetStreamListParams) (*interfaces.StreamResponse, error) {
+	var streamResponse interfaces.StreamResponse
 	client := http.Client{}
 
 	if params.First == 0 {
@@ -85,8 +85,8 @@ type SearchCategoriesParams struct {
 	First int    `url:"first"`
 }
 
-func SearchCategories(token string, clientId string, params *SearchCategoriesParams) (*models.CategoryResponse, error) {
-	var categoryResponse models.CategoryResponse
+func SearchCategories(token string, clientId string, params *SearchCategoriesParams) (*interfaces.CategoryResponse, error) {
+	var categoryResponse interfaces.CategoryResponse
 	client := http.Client{}
 
 	if params.First == 0 {

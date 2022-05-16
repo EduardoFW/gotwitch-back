@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"api.gotwitch.tk/controllers"
-	"api.gotwitch.tk/models"
+	"api.gotwitch.tk/interfaces"
 	"api.gotwitch.tk/services"
 	"api.gotwitch.tk/settings"
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ func GetRandomStream(c *gin.Context) {
 	pages := rand.Intn(maxPageSize) + 1
 
 	// Streams list
-	var streams []models.Stream
+	var streams []interfaces.Stream
 	var after string
 
 	params := &services.GetStreamListParams{}

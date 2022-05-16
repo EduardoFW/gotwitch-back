@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"api.gotwitch.tk/models"
+	"api.gotwitch.tk/interfaces"
 	"api.gotwitch.tk/services"
 	"api.gotwitch.tk/settings"
 )
@@ -12,7 +12,7 @@ import (
 var lock = &sync.Mutex{}
 
 type TokenManager struct {
-	token       *models.TwitchToken
+	token       *interfaces.TwitchToken
 	expiesAfter time.Time
 }
 

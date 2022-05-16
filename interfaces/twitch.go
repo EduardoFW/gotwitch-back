@@ -1,4 +1,4 @@
-package models
+package interfaces
 
 type TwitchToken struct {
 	AccessToken string `json:"access_token"`
