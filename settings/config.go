@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
+	"gorm.io/gorm"
 )
 
 // Config struct
@@ -21,9 +23,12 @@ type Server struct {
 	TwitchClientID string
 	// Twitch Client Secret
 	TwitchClientSecret string
+	// Postgres DSN
+	PostgresDSN string
 }
 
 var ServerSettings = &Server{}
+var DB *gorm.DB
 
 func getParam(key string, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
@@ -58,6 +63,8 @@ func Setup() {
 
 	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
 	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
+
+	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
 
 	println("Settings loaded!")
 }

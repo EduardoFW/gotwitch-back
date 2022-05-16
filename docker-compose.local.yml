@@ -7,8 +7,6 @@ services:
     environment:
       - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
-      - GIN_MODE=release
-      - TWITCH_GO_BACKEND_ENV=prod
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - db

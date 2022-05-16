@@ -6,10 +6,23 @@ import (
 
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func init() {
+	println("Loading settings...")
 	settings.Setup()
+
+	println("Loading database...")
+	var err error
+	settings.DB, err = gorm.Open(postgres.Open(settings.ServerSettings.PostgresDSN), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	println("Finished initializing.")
 }
 
 func main() {
