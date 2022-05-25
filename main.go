@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"time"
 
+	"api.gotwitch.tk/controllers/jobs"
+	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
-	"api.gotwitch.tk/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,6 +28,8 @@ func init() {
 	settings.DB.AutoMigrate(&models.Stream{})
 
 	println("Finished initializing.")
+
+	jobs.LoopStreams()
 }
 
 func main() {
