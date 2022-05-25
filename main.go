@@ -26,10 +26,11 @@ func init() {
 
 	println("Adding database migrations...")
 	settings.DB.AutoMigrate(&models.Stream{})
+	settings.DB.AutoMigrate(&models.Job{})
 
 	println("Finished initializing.")
 
-	jobs.LoopStreams()
+	jobs.Orchestrator()
 }
 
 func main() {

@@ -22,6 +22,8 @@ type Stream struct {
 	ThumbnailUrl string         `json:"thumbnail_url"`
 	TagIds       pq.StringArray `json:"tag_ids" gorm:"type:text[]"`
 	IsMature     bool           `json:"is_mature"`
+	JobID        int            `json:"-"`
+	Job          Job            `json:"-"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt `gorm:"index"`

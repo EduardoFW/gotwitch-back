@@ -54,7 +54,6 @@ func (t *TwitchService) processHeaders(res *http.Header) {
 		}
 		t.rateLimit.Reset = time.Unix(int64(timestamp), 0)
 	}
-	println("Rate limit:", t.rateLimit.Limit, "Remaining:", t.rateLimit.Remaining, "Reset:", t.rateLimit.Reset.Format(time.RFC3339))
 }
 
 type GetStreamListParams struct {
