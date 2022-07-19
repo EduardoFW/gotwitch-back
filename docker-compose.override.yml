@@ -1,0 +1,12 @@
+
+services:
+  api:
+    environment:
+      - GIN_MODE=debug
+      - TWITCH_GO_BACKEND_ENV=""
+    volumes:
+      - ./:/go/app
+    command:
+      - go
+      - run
+      - ./main.go
