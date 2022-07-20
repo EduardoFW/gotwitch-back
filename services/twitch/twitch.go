@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"api.gotwitch.tk/controllers"
 	"api.gotwitch.tk/interfaces"
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/settings"
@@ -23,7 +22,7 @@ type RateLimit struct {
 
 // Services controller instance
 type TwitchService struct {
-	tokenManager controllers.TokenManager `inject:""`
+	tokenManager TokenManager `inject:""`
 	rateLimit    *RateLimit
 }
 
@@ -181,12 +180,12 @@ func (t *TwitchService) executeRequest(url string) (*http.Response, error) {
 	return res, nil
 }
 
-var singleInstance *TwitchService
-var once sync.Once
+var singleInstanceTwitchService *TwitchService
+var onceTwitchService sync.Once
 
 func GetTwitchService() *TwitchService {
-	once.Do(func() {
-		singleInstance = &TwitchService{}
+	onceTwitchService.Do(func() {
+		singleInstanceTwitchService = &TwitchService{}
 	})
-	return singleInstance
+	return singleInstanceTwitchService
 }

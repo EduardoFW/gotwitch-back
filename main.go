@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"api.gotwitch.tk/controllers/jobs"
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
@@ -30,7 +29,7 @@ func init() {
 
 	println("Finished initializing.")
 
-	jobs.Orchestrator()
+	// jobs.Orchestrator()
 }
 
 func main() {
