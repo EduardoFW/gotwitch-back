@@ -79,8 +79,6 @@ func (t *TwitchService) GetStreamList(params *GetStreamListParams) (*StreamRespo
 		return nil, &RateLimitError{When: *when}
 	}
 
-	client := http.Client{}
-
 	if params.First == 0 {
 		params.First = 100
 	}
@@ -88,6 +86,75 @@ func (t *TwitchService) GetStreamList(params *GetStreamListParams) (*StreamRespo
 	values, _ := query.Values(params)
 
 	url := "https://api.twitch.tv/helix/streams?" + values.Encode()
+
+	res, err := t.executeRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&streamResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	return &streamResponse, nil
+}
+
+func (t *TwitchService) HasRateLimit() (bool, *time.Time) {
+	if t.rateLimit == nil { // Possible first request so no rate limit set yet
+		return true, nil
+	}
+	if t.rateLimit.Remaining == 0 && t.rateLimit.Reset.After(time.Now()) { // Rate limit exceeded and reset time is in the future
+		return false, &t.rateLimit.Reset
+	}
+	return true, nil
+}
+
+type SearchCategoriesParams struct {
+	Query string `url:"query"`
+	After string `url:"after"`
+	First int    `url:"first"`
+}
+
+type CategoryResponse struct {
+	Data       []interfaces.Category `json:"data"`
+	Pagination interfaces.Pagination `json:"pagination"`
+}
+
+func (t *TwitchService) SearchCategories(params *SearchCategoriesParams) (*CategoryResponse, error) {
+	var categoryResponse CategoryResponse
+
+	canRequest, when := t.HasRateLimit()
+	if !canRequest {
+		return nil, &RateLimitError{When: *when}
+	}
+
+	if params.First == 0 {
+		params.First = 100
+	}
+
+	values, _ := query.Values(params)
+
+	url := "https://api.twitch.tv/helix/search/categories?" + values.Encode()
+
+	res, err := t.executeRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&categoryResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	return &categoryResponse, nil
+}
+
+func (t *TwitchService) executeRequest(url string) (*http.Response, error) {
+	client := http.Client{}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -111,24 +178,7 @@ func (t *TwitchService) GetStreamList(params *GetStreamListParams) (*StreamRespo
 
 	t.processHeaders(&res.Header)
 
-	err = json.NewDecoder(res.Body).Decode(&streamResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	defer res.Body.Close()
-
-	return &streamResponse, nil
-}
-
-func (t *TwitchService) HasRateLimit() (bool, *time.Time) {
-	if t.rateLimit == nil { // Possible first request so no rate limit set yet
-		return true, nil
-	}
-	if t.rateLimit.Remaining == 0 && t.rateLimit.Reset.After(time.Now()) { // Rate limit exceeded and reset time is in the future
-		return false, &t.rateLimit.Reset
-	}
-	return true, nil
+	return res, nil
 }
 
 var singleInstance *TwitchService

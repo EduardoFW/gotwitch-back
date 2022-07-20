@@ -38,6 +38,23 @@ func getParam(key string, defaultValue string) string {
 }
 
 func Setup() {
+	loadEnv()
+
+	println("Loading settings...")
+	ServerSettings.Addr = getParam("ADDR", ":8080")
+	ServerSettings.ReadTimeout, _ = strconv.Atoi(getParam("READ_TIMEOUT", "10"))
+	ServerSettings.WriteTimeout, _ = strconv.Atoi(getParam("WRITE_TIMEOUT", "10"))
+	ServerSettings.IdleTimeout, _ = strconv.Atoi(getParam("IDLE_TIMEOUT", "60"))
+
+	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
+	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
+
+	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
+
+	println("Settings loaded!")
+}
+
+func loadEnv() {
 	println("Loading .env file...")
 	env := os.Getenv("TWITCH_GO_BACKEND_ENV")
 	println("Detected environment: " + env)
@@ -54,17 +71,4 @@ func Setup() {
 		godotenv.Load()
 		println("Loading .env")
 	}
-
-	println("Loading settings...")
-	ServerSettings.Addr = getParam("ADDR", ":8080")
-	ServerSettings.ReadTimeout, _ = strconv.Atoi(getParam("READ_TIMEOUT", "10"))
-	ServerSettings.WriteTimeout, _ = strconv.Atoi(getParam("WRITE_TIMEOUT", "10"))
-	ServerSettings.IdleTimeout, _ = strconv.Atoi(getParam("IDLE_TIMEOUT", "60"))
-
-	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
-	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
-
-	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
-
-	println("Settings loaded!")
 }

@@ -4,32 +4,22 @@ import (
 	"math/rand"
 	"strconv"
 
-	"api.gotwitch.tk/controllers"
-	"api.gotwitch.tk/interfaces"
-	"api.gotwitch.tk/services"
-	"api.gotwitch.tk/settings"
+	"api.gotwitch.tk/models"
+	"api.gotwitch.tk/services/twitch"
 	"github.com/gin-gonic/gin"
 )
 
 func GetRandomStream(c *gin.Context) {
 	maxPageSize := 10
 
-	tokenString, err := controllers.GetTokenManager().GetToken()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
 	// Random number between 1 and pageSize
 	pages := rand.Intn(maxPageSize) + 1
 
 	// Streams list
-	var streams []interfaces.Stream
+	var streams []models.Stream
 	var after string
 
-	params := &services.GetStreamListParams{}
+	params := &twitch.GetStreamListParams{}
 
 	// Buffer all pages
 	for i := 0; i < pages; i++ {
@@ -37,7 +27,7 @@ func GetRandomStream(c *gin.Context) {
 		params.After = after
 		params.Language = c.QueryArray("language[]")
 		params.GameId = c.QueryArray("game_id[]")
-		stream, err := services.GetStreamList(tokenString, settings.ServerSettings.TwitchClientID, params)
+		stream, err := twitch.GetTwitchService().GetStreamList(params)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err.Error(),
@@ -65,22 +55,14 @@ func GetRandomStream(c *gin.Context) {
 }
 
 func SearchCategories(c *gin.Context) {
-	tokenString, err := controllers.GetTokenManager().GetToken()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
 	first, _ := strconv.Atoi(c.DefaultQuery("first", "100"))
-	params := &services.SearchCategoriesParams{
+	params := &twitch.SearchCategoriesParams{
 		Query: c.Query("query"),
 		First: first,
 		After: c.Query("after"),
 	}
 
-	resp, err := services.SearchCategories(tokenString, settings.ServerSettings.TwitchClientID, params)
+	resp, err := twitch.GetTwitchService().SearchCategories(params)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err.Error(),
