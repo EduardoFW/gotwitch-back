@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"encoding/json"
+	"os"
 	"sync"
 	"time"
 
@@ -23,9 +25,44 @@ func UpsertStreams(streams []models.Stream, job models.Job) error {
 	})
 }
 
+type language struct {
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
+func loadLanguagesFromFile(file string) []language {
+	// Open json file
+	f, err := os.Open(file)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	// Read json file
+	var languages []language
+	decoder := json.NewDecoder(f)
+	err = decoder.Decode(&languages)
+	if err != nil {
+		panic(err)
+	}
+
+	return languages
+}
+
+func loadSupportedLanguages() []string {
+	languages := loadLanguagesFromFile("./misc/supported-languages.json")
+	var supportedLanguages []string
+	for _, language := range languages {
+		supportedLanguages = append(supportedLanguages, language.Code)
+	}
+	return supportedLanguages
+}
+
 func Orchestrator() {
 	var wg sync.WaitGroup
-	var languages []string = []string{"en", "de", "es", "fr", "it", "ja", "ko", "pl", "pt", "ru", "tr", "zh"}
+	var languages []string = loadSupportedLanguages()
+
+	println("Loading save-stream jobs...")
 
 	// Create a new job
 	job := models.Job{

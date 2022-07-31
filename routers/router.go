@@ -2,6 +2,7 @@ package routers
 
 import (
 	v1 "api.gotwitch.tk/controllers/v1"
+	v2 "api.gotwitch.tk/controllers/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,13 @@ func InitRouter() *gin.Engine {
 		// RandomStream
 		apiV1.GET("/random-stream", v1.GetRandomStream)
 		apiV1.GET("/search-category", v1.SearchCategories)
+	}
+
+	apiV2 := r.Group("/api/v2")
+	{
+		// RandomStream
+		apiV2.GET("/random-stream", v2.GetRandomStream)
+		// apiV1.GET("/search-category", v1.SearchCategories)
 	}
 
 	return r

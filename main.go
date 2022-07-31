@@ -4,10 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	"api.gotwitch.tk/controllers/jobs"
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
 
+	"github.com/go-co-op/gocron"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -29,7 +31,15 @@ func init() {
 
 	println("Finished initializing.")
 
-	// jobs.Orchestrator()
+	println("Initializing scheduler...")
+	go scheduler()
+}
+
+func scheduler() {
+	println("Starting scheduler...")
+	scheduler := gocron.NewScheduler(time.UTC)
+	scheduler.Every(15).Minutes().Do(jobs.Orchestrator)
+	scheduler.StartBlocking()
 }
 
 func main() {
