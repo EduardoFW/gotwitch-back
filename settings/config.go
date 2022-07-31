@@ -53,7 +53,7 @@ func Setup() {
 	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
 	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
 
-	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
+	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "postgres")
 
 	ServerSettings.SentryDSN = getParam("SENTRY_DSN", "")
 	ServerSettings.SentryEnvironment = getParam("SENTRY_ENVIRONMENT", "local")
