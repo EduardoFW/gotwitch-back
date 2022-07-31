@@ -25,6 +25,10 @@ type Server struct {
 	TwitchClientSecret string
 	// Postgres DSN
 	PostgresDSN string
+	// Sentry DSN
+	SentryDSN string
+	// Sentry Environment
+	SentryEnvironment string
 }
 
 var ServerSettings = &Server{}
@@ -50,6 +54,9 @@ func Setup() {
 	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
 
 	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
+
+	ServerSettings.SentryDSN = getParam("SENTRY_DSN", "")
+	ServerSettings.SentryEnvironment = getParam("SENTRY_ENVIRONMENT", "local")
 
 	println("Settings loaded!")
 }

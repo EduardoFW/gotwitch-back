@@ -3,6 +3,7 @@ package routers
 import (
 	v1 "api.gotwitch.tk/controllers/v1"
 	v2 "api.gotwitch.tk/controllers/v2"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +11,7 @@ import (
 // InitRouter initialize routing information
 func InitRouter() *gin.Engine {
 	r := gin.New()
+	r.Use(sentrygin.New(sentrygin.Options{}))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 

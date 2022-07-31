@@ -9,6 +9,7 @@ import (
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/services/twitch"
 	"api.gotwitch.tk/settings"
+	"github.com/getsentry/sentry-go"
 	"gorm.io/gorm"
 )
 
@@ -115,7 +116,8 @@ func LoopStreams(job models.Job, language []string) error {
 
 		stream, err := twitch.GetTwitchService().GetStreamList(params)
 		if err != nil {
-			return err
+			sentry.CaptureException(err)
+			break
 		}
 
 		params.After = stream.Pagination.Cursor

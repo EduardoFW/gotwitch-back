@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -9,10 +10,25 @@ import (
 	"api.gotwitch.tk/routers"
 	"api.gotwitch.tk/settings"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/go-co-op/gocron"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func initSentry() {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn:         settings.ServerSettings.SentryDSN,
+		Environment: settings.ServerSettings.SentryEnvironment,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+}
 
 func init() {
 	println("Loading settings...")
@@ -29,10 +45,13 @@ func init() {
 	settings.DB.AutoMigrate(&models.Stream{})
 	settings.DB.AutoMigrate(&models.Job{})
 
-	println("Finished initializing.")
-
 	println("Initializing scheduler...")
 	go scheduler()
+
+	initSentry()
+
+	println("Finished initializing.")
+
 }
 
 func scheduler() {
@@ -43,6 +62,7 @@ func scheduler() {
 }
 
 func main() {
+	defer sentry.Flush(2 * time.Second)
 
 	router := routers.InitRouter()
 	s := &http.Server{
