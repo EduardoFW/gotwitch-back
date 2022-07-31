@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -30,15 +31,29 @@ func initSentry() {
 	}
 }
 
+func connectToDatabase() error {
+	var err error
+	settings.DB, err = gorm.Open(postgres.Open(settings.ServerSettings.PostgresDSN), &gorm.Config{})
+	return err
+}
+
+func tryToConnectToDatabaseAndRetry(retryAttempts int) error {
+	for i := 0; i < retryAttempts; i++ {
+		if err := connectToDatabase(); err == nil {
+			return nil
+		}
+		time.Sleep(time.Second * 5)
+	}
+	return errors.New("Could not connect to database")
+}
+
 func init() {
 	println("Loading settings...")
 	settings.Setup()
 
 	println("Loading database...")
-	var err error
-	settings.DB, err = gorm.Open(postgres.Open(settings.ServerSettings.PostgresDSN), &gorm.Config{})
-	if err != nil {
-		panic(err)
+	if err := tryToConnectToDatabaseAndRetry(5); err != nil {
+		log.Fatalf("Could not connect to database: %s", err)
 	}
 
 	println("Adding database migrations...")
