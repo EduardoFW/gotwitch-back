@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"api.gotwitch.tk/interfaces"
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/settings"
 	"github.com/google/go-querystring/query"
@@ -65,9 +64,13 @@ type GetStreamListParams struct {
 	UserLogin []string `url:"user_login"`
 }
 
+type Pagination struct {
+	Cursor string `json:"cursor"`
+}
+
 type StreamResponse struct {
-	Data       []models.Stream       `json:"data"`
-	Pagination interfaces.Pagination `json:"pagination"`
+	Data       []models.Stream `json:"data"`
+	Pagination Pagination      `json:"pagination"`
 }
 
 func (t *TwitchService) GetStreamList(params *GetStreamListParams) (*StreamResponse, error) {
@@ -117,9 +120,15 @@ type SearchCategoriesParams struct {
 	First int    `url:"first"`
 }
 
+type Category struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	BoxArtUrl string `json:"box_art_url"`
+}
+
 type CategoryResponse struct {
-	Data       []interfaces.Category `json:"data"`
-	Pagination interfaces.Pagination `json:"pagination"`
+	Data       []Category `json:"data"`
+	Pagination Pagination `json:"pagination"`
 }
 
 func (t *TwitchService) SearchCategories(params *SearchCategoriesParams) (*CategoryResponse, error) {

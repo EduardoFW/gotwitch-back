@@ -7,14 +7,19 @@ import (
 	"sync"
 	"time"
 
-	"api.gotwitch.tk/interfaces"
 	"api.gotwitch.tk/settings"
 )
 
 var lock = &sync.Mutex{}
 
+type TwitchToken struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	ExpiresIn   int    `json:"expires_in"`
+}
+
 type TokenManager struct {
-	token       *interfaces.TwitchToken
+	token       *TwitchToken
 	expiesAfter time.Time
 }
 
@@ -34,8 +39,8 @@ func (t *TokenManager) GetToken() (string, error) {
 	return t.token.AccessToken, nil
 }
 
-func (t *TokenManager) GetTwitchToken(clientID string, clientSecret string) (*interfaces.TwitchToken, error) {
-	var token interfaces.TwitchToken
+func (t *TokenManager) GetTwitchToken(clientID string, clientSecret string) (*TwitchToken, error) {
+	var token TwitchToken
 
 	resp, err := http.Post("https://id.twitch.tv/oauth2/token?client_id="+clientID+"&client_secret="+clientSecret+"&grant_type=client_credentials", "application/json", nil)
 	if err != nil {
