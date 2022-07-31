@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
+	"gorm.io/gorm"
 )
 
 // Config struct
@@ -21,9 +23,16 @@ type Server struct {
 	TwitchClientID string
 	// Twitch Client Secret
 	TwitchClientSecret string
+	// Postgres DSN
+	PostgresDSN string
+	// Sentry DSN
+	SentryDSN string
+	// Sentry Environment
+	SentryEnvironment string
 }
 
 var ServerSettings = &Server{}
+var DB *gorm.DB
 
 func getParam(key string, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
@@ -33,6 +42,26 @@ func getParam(key string, defaultValue string) string {
 }
 
 func Setup() {
+	loadEnv()
+
+	println("Loading settings...")
+	ServerSettings.Addr = getParam("ADDR", ":8080")
+	ServerSettings.ReadTimeout, _ = strconv.Atoi(getParam("READ_TIMEOUT", "10"))
+	ServerSettings.WriteTimeout, _ = strconv.Atoi(getParam("WRITE_TIMEOUT", "10"))
+	ServerSettings.IdleTimeout, _ = strconv.Atoi(getParam("IDLE_TIMEOUT", "60"))
+
+	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
+	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
+
+	ServerSettings.PostgresDSN = "host=" + getParam("POSTGRES_HOST", "localhost") + " port=" + getParam("POSTGRES_PORT", "5432") + " user=" + getParam("POSTGRES_USER", "postgres") + " password=" + getParam("POSTGRES_PASSWORD", "") + " dbname=" + getParam("POSTGRES_DB", "twitch_go_backend")
+
+	ServerSettings.SentryDSN = getParam("SENTRY_DSN", "")
+	ServerSettings.SentryEnvironment = getParam("SENTRY_ENVIRONMENT", "local")
+
+	println("Settings loaded!")
+}
+
+func loadEnv() {
 	println("Loading .env file...")
 	env := os.Getenv("TWITCH_GO_BACKEND_ENV")
 	println("Detected environment: " + env)
@@ -49,15 +78,4 @@ func Setup() {
 		godotenv.Load()
 		println("Loading .env")
 	}
-
-	println("Loading settings...")
-	ServerSettings.Addr = getParam("ADDR", ":8080")
-	ServerSettings.ReadTimeout, _ = strconv.Atoi(getParam("READ_TIMEOUT", "10"))
-	ServerSettings.WriteTimeout, _ = strconv.Atoi(getParam("WRITE_TIMEOUT", "10"))
-	ServerSettings.IdleTimeout, _ = strconv.Atoi(getParam("IDLE_TIMEOUT", "60"))
-
-	ServerSettings.TwitchClientID = getParam("TWITCH_CLIENT_ID", "")
-	ServerSettings.TwitchClientSecret = getParam("TWITCH_CLIENT_SECRET", "")
-
-	println("Settings loaded!")
 }

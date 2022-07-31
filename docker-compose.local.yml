@@ -7,8 +7,6 @@ services:
     environment:
       - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
-      - GIN_MODE=release
-      - TWITCH_GO_BACKEND_ENV=prod
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - db
@@ -18,7 +16,7 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
