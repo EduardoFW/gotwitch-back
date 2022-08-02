@@ -8,7 +8,7 @@ import (
 
 func lastSuccessfullyRanJob() (models.Job, error) {
 	var job models.Job
-	err := settings.DB.Find(&job, "status = ?", "Finished").Order("created_at desc").First(&job).Error
+	err := settings.DB.Where("status = ?", "Finished").Order("created_at desc").Take(&job).Error
 	return job, err
 }
 
