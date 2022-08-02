@@ -21,7 +21,7 @@ func randomStreamFromJob(job models.Job, games []string, languages []string) (mo
 	if len(languages) > 0 {
 		query = query.Where("language in (?)", languages)
 	}
-	err := query.Order("RANDOM()").First(&stream).Error
+	err := query.Order("RANDOM()").Limit(1).Take(&stream).Error
 	return stream, err
 }
 
