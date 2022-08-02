@@ -2,6 +2,7 @@
 services:
   api:
     build: .
+    restart: always
     ports:
       - "9000:9000"
     environment:
