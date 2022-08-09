@@ -3,27 +3,33 @@ package jobs
 import (
 	"encoding/json"
 	"os"
-	"sync"
 	"time"
 
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/services/twitch"
 	"api.gotwitch.tk/settings"
+	"github.com/gammazero/workerpool"
 	"github.com/getsentry/sentry-go"
-	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func UpsertStreams(streams []models.Stream, job models.Job) error {
-	return settings.DB.Transaction(func(tx *gorm.DB) error {
-		for _, stream := range streams {
-			stream.Job = job
-			if err := tx.Save(&stream).Error; err != nil {
-				return err
-			}
-		}
-
+	if len(streams) == 0 {
 		return nil
-	})
+	}
+	// Set the job for the streams
+	for i := range streams {
+		streams[i].Job = job
+	}
+
+	return settings.DB.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&streams).Error
+
+}
+
+func DeleteStreamsWithJobIDLessThan(id uint) error {
+	return settings.DB.Where("job_id < ?", id).Unscoped().Delete(&models.Stream{}).Error
 }
 
 type language struct {
@@ -60,7 +66,6 @@ func loadSupportedLanguages() []string {
 }
 
 func Orchestrator() {
-	var wg sync.WaitGroup
 	var languages []string = loadSupportedLanguages()
 
 	println("Loading save-stream jobs...")
@@ -77,15 +82,7 @@ func Orchestrator() {
 		panic(err)
 	}
 
-	for _, language := range languages {
-		wg.Add(1)
-		go func(job models.Job, language string) {
-			defer wg.Done()
-			LoopStreams(job, []string{language})
-		}(job, language)
-	}
-
-	wg.Wait()
+	runWorkerPool(languages, job)
 
 	println("Finished orchestrating.")
 
@@ -95,6 +92,27 @@ func Orchestrator() {
 		panic(err)
 	}
 
+	// Delete streams with job_id < job.id
+	if err := DeleteStreamsWithJobIDLessThan(job.ID); err != nil {
+		panic(err)
+	}
+
+}
+
+func runWorkerPool(languages []string, job models.Job) {
+	wp := workerpool.New(4)
+
+	for _, language := range languages {
+
+		language := language
+		job := job
+
+		wp.Submit(func() {
+			LoopStreams(job, []string{language})
+		})
+	}
+
+	wp.StopWait()
 }
 
 func LoopStreams(job models.Job, language []string) error {
