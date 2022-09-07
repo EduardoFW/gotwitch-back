@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var workerPoolSize = 4
+var categoryWorkerPoolSize = 2
 
 func CategoryOrchestrator() {
 	println("Starting category orchestrator")
@@ -64,7 +64,7 @@ func UpsertCategories(allCategories []models.Category, job models.Job) error {
 func aggregateAllCategoriesWorkerPool(letters []string) []models.Category {
 	var allCategories []models.Category
 	workerChannel := make(chan []models.Category)
-	wp := workerpool.New(workerPoolSize)
+	wp := workerpool.New(categoryWorkerPoolSize)
 
 	for _, letter := range letters {
 		letter := letter

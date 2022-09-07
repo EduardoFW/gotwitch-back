@@ -13,6 +13,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+var streamWorkerPoolSize = 3
+
 func UpsertStreams(streams []models.Stream, job models.Job) error {
 	if len(streams) == 0 {
 		return nil
@@ -100,7 +102,7 @@ func Orchestrator() {
 }
 
 func runWorkerPool(languages []string, job models.Job) {
-	wp := workerpool.New(4)
+	wp := workerpool.New(streamWorkerPoolSize)
 
 	for _, language := range languages {
 
