@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"time"
+
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/services/twitch"
 	"api.gotwitch.tk/settings"
@@ -9,7 +11,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var workerPoolSize = 5
+var workerPoolSize = 4
 
 func CategoryOrchestrator() {
 	println("Starting category orchestrator")
@@ -120,6 +122,14 @@ func getAllCategoriesContaining(query string) []models.Category {
 	}
 
 	for ok := true; ok; ok = params.After != "" {
+
+		hasRate, when := twitch.GetTwitchService().HasRateLimit()
+		if !hasRate {
+			println("Rate limit exceeded, waiting...")
+			println("Rate limit reset:", when.Format(time.RFC3339))
+			duration := when.Sub(time.Now())
+			time.Sleep(duration)
+		}
 
 		categories, err := twitch.GetTwitchService().SearchCategories(params)
 		if err != nil {
