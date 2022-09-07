@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"api.gotwitch.tk/models"
-	"api.gotwitch.tk/settings"
 )
 
 // Test that runs before all tests
 func TestMain(m *testing.M) {
-	settings.Setup("../../.env")
+	// Only for integration tests (running locally only for now)
+	// settings.Setup("../../.env")
 	m.Run()
 }
 
