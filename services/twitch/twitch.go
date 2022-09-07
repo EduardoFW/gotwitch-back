@@ -120,15 +120,9 @@ type SearchCategoriesParams struct {
 	First int    `url:"first"`
 }
 
-type Category struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	BoxArtUrl string `json:"box_art_url"`
-}
-
 type CategoryResponse struct {
-	Data       []Category `json:"data"`
-	Pagination Pagination `json:"pagination"`
+	Data       []models.Category `json:"data"`
+	Pagination Pagination        `json:"pagination"`
 }
 
 func (t *TwitchService) SearchCategories(params *SearchCategoriesParams) (*CategoryResponse, error) {
@@ -146,6 +140,41 @@ func (t *TwitchService) SearchCategories(params *SearchCategoriesParams) (*Categ
 	values, _ := query.Values(params)
 
 	url := "https://api.twitch.tv/helix/search/categories?" + values.Encode()
+
+	res, err := t.executeRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&categoryResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	return &categoryResponse, nil
+}
+
+type ListGamesParams struct {
+	After string `url:"after"`
+	First int    `url:"first"`
+}
+
+func (t *TwitchService) ListGames(params *ListGamesParams) (*CategoryResponse, error) {
+	var categoryResponse CategoryResponse
+
+	canRequest, when := t.HasRateLimit()
+	if !canRequest {
+		return nil, &RateLimitError{When: *when}
+	}
+
+	if params.First == 0 {
+		params.First = 100
+	}
+
+	values, _ := query.Values(params)
+
+	url := "https://api.twitch.tv/helix/games/top?" + values.Encode()
 
 	res, err := t.executeRequest(url)
 	if err != nil {
