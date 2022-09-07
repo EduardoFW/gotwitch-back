@@ -73,8 +73,8 @@ func init() {
 func scheduler() {
 	println("Starting scheduler...")
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(15).Minutes().Do(jobs.Orchestrator)
-	scheduler.Every(15).Days().Do(jobs.CategoryOrchestrator)
+	scheduler.Every(15).Minutes().SingletonMode().Do(jobs.Orchestrator)
+	scheduler.Every(15).Days().SingletonMode().Do(jobs.CategoryOrchestrator)
 	scheduler.StartBlocking()
 }
 
