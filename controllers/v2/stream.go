@@ -57,5 +57,17 @@ func GetRandomStream(c *gin.Context) {
 }
 
 func SearchCategories(c *gin.Context) {
+	var categories []models.Category
+	query := c.Query("query")
+	err := settings.DB.Where("name LIKE ?", "%"+query+"%").Limit(10).Find(&categories).Error
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
+	c.JSON(200, gin.H{
+		"categories": categories,
+	})
 }

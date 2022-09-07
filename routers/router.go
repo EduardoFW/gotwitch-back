@@ -30,7 +30,7 @@ func InitRouter() *gin.Engine {
 	{
 		// RandomStream
 		apiV2.GET("/random-stream", v2.GetRandomStream)
-		// apiV1.GET("/search-category", v1.SearchCategories)
+		apiV2.GET("/search-category", v2.SearchCategories)
 	}
 
 	return r
