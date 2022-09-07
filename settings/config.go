@@ -41,8 +41,12 @@ func getParam(key string, defaultValue string) string {
 	return defaultValue
 }
 
-func Setup() {
-	loadEnv()
+func DefaultSetup() {
+	Setup("")
+}
+
+func Setup(settingsFile string) {
+	loadEnv(settingsFile)
 
 	println("Loading settings...")
 	ServerSettings.Addr = getParam("ADDR", ":8080")
@@ -61,7 +65,9 @@ func Setup() {
 	println("Settings loaded!")
 }
 
-func loadEnv() {
+func loadEnv(settingsFile string) {
+	loadEnvFromFile(settingsFile)
+
 	println("Loading .env file...")
 	env := os.Getenv("TWITCH_GO_BACKEND_ENV")
 	println("Detected environment: " + env)
@@ -77,5 +83,15 @@ func loadEnv() {
 	default:
 		godotenv.Load()
 		println("Loading .env")
+	}
+}
+
+func loadEnvFromFile(settingsFile string) {
+	if settingsFile != "" {
+		println("Loading settings from " + settingsFile + "...")
+		err := godotenv.Load(settingsFile)
+		if err != nil {
+			panic(err)
+		}
 	}
 }

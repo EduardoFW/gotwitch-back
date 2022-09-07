@@ -49,7 +49,7 @@ func tryToConnectToDatabaseAndRetry(retryAttempts int) error {
 
 func init() {
 	println("Loading settings...")
-	settings.Setup()
+	settings.DefaultSetup()
 
 	println("Loading database...")
 	if err := tryToConnectToDatabaseAndRetry(5); err != nil {
