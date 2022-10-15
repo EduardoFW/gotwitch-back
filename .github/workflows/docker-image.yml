@@ -31,5 +31,5 @@ jobs:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       run: |
-        docker-compose down
+        docker-compose stop
         docker-compose up -d --build
