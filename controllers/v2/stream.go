@@ -45,6 +45,13 @@ func GetRandomStream(c *gin.Context) {
 
 	stream, err := randomStreamFromJob(lastJob, params.Games, params.Languages)
 	if err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(404, gin.H{
+				"error": "No streams found",
+			})
+			return
+		}
+
 		c.JSON(500, gin.H{
 			"error": err.Error(),
 		})
