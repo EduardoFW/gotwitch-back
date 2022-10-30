@@ -4,6 +4,7 @@ import (
 	"api.gotwitch.tk/models"
 	"api.gotwitch.tk/settings"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func lastSuccessfullyRanJob() (models.Job, error) {
@@ -12,17 +13,28 @@ func lastSuccessfullyRanJob() (models.Job, error) {
 	return job, err
 }
 
-func randomStreamFromJob(job models.Job, games []string, languages []string) (models.Stream, error) {
+func randomStreamFromJob(job models.Job, params RandomStreamParams) (models.Stream, error) {
 	var stream models.Stream
 	query := settings.DB.Model(&stream).Where("job_id = ?", job.ID)
-	if len(games) > 0 {
-		query = query.Where("game_id in (?)", games)
-	}
-	if len(languages) > 0 {
-		query = query.Where("language in (?)", languages)
-	}
+	query = filterQueryFromParams(query, params)
 	err := query.Order("RANDOM()").Limit(1).Take(&stream).Error
 	return stream, err
+}
+
+func filterQueryFromParams(query *gorm.DB, params RandomStreamParams) *gorm.DB {
+	if len(params.Games) > 0 {
+		query = query.Where("game_id in (?)", params.Games)
+	}
+	if len(params.Languages) > 0 {
+		query = query.Where("language in (?)", params.Languages)
+	}
+	return query
+}
+
+func buildQueryFromParams(params RandomStreamParams) *gorm.DB {
+	query := settings.DB.Model(&models.Stream{})
+	query = filterQueryFromParams(query, params)
+	return query
 }
 
 type RandomStreamParams struct {
@@ -39,11 +51,9 @@ func GetRandomStream(c *gin.Context) {
 		return
 	}
 
-	var params RandomStreamParams
-	params.Games = c.QueryArray("game_id[]")
-	params.Languages = c.QueryArray("language[]")
+	params := getRandomStreamParamsFromGinContext(c)
 
-	stream, err := randomStreamFromJob(lastJob, params.Games, params.Languages)
+	stream, err := randomStreamFromJob(lastJob, params)
 	if err != nil {
 		if err.Error() == "record not found" {
 			c.JSON(404, gin.H{
@@ -60,6 +70,40 @@ func GetRandomStream(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"stream": stream,
+	})
+}
+
+func getRandomStreamParamsFromGinContext(c *gin.Context) RandomStreamParams {
+	var params RandomStreamParams
+	params.Games = c.QueryArray("game_id[]")
+	params.Languages = c.QueryArray("language[]")
+	return params
+}
+
+func GetStreamCount(c *gin.Context) {
+	var count int64
+	lastJob, err := lastSuccessfullyRanJob()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	params := getRandomStreamParamsFromGinContext(c)
+
+	query := buildQueryFromParams(params)
+
+	err = query.Where("job_id = ?", lastJob.ID).Count(&count).Error
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"count": count,
 	})
 }
 
