@@ -3,6 +3,7 @@ package jobs
 import (
 	"encoding/json"
 	"os"
+	"sync"
 	"time"
 
 	"api.gotwitch.tk/models"
@@ -26,7 +27,7 @@ func UpsertStreams(streams []models.Stream, job models.Job) error {
 
 	return settings.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
-	}).Create(&streams).Error
+	}).CreateInBatches(streams, 100).Error
 
 }
 
@@ -84,7 +85,9 @@ func Orchestrator() {
 		panic(err)
 	}
 
-	runWorkerPool(languages, job)
+	allStreams := wpGetAllStreams(languages)
+
+	UpsertStreams(allStreams, job)
 
 	println("Finished orchestrating.")
 
@@ -101,24 +104,59 @@ func Orchestrator() {
 
 }
 
-func runWorkerPool(languages []string, job models.Job) {
+func wpGetAllStreams(languages []string) []models.Stream {
 	wp := workerpool.New(streamWorkerPoolSize)
+	var allStreams []models.Stream
+	mutex := &sync.Mutex{}
 
 	for _, language := range languages {
 
 		language := language
-		job := job
 
 		wp.Submit(func() {
-			LoopStreams(job, []string{language})
+			getStreamsAndAppendUnique(language, mutex, &allStreams)
 		})
 	}
 
 	wp.StopWait()
+
+	return allStreams
 }
 
-func LoopStreams(job models.Job, language []string) error {
-	var streams int = 0 // Stream count
+func getStreamsAndAppendUnique(language string, mutex *sync.Mutex, returnStreams *[]models.Stream) {
+	println("Starting worker for language:", language)
+	var langStreams []models.Stream = GetAllStreamsFromLanguage([]string{language})
+
+	appendUniqueToArrayThreadSafe(mutex, returnStreams, &langStreams, isStreamEqual)
+}
+
+func isStreamEqual(stream1 models.Stream, stream2 models.Stream) bool {
+	return stream1.Id == stream2.Id
+}
+
+func appendUniqueToArrayThreadSafe[T any](mutex *sync.Mutex, destArr *[]T, sourceArr *[]T, equal func(T, T) bool) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	for _, sourceItem := range *sourceArr {
+		if !contains(*destArr, sourceItem, equal) {
+			*destArr = append(*destArr, sourceItem)
+		}
+	}
+}
+
+func contains[T any](arr []T, item T, equal func(T, T) bool) bool {
+	for _, arrItem := range arr {
+		if equal(arrItem, item) {
+			return true
+		}
+	}
+	return false
+}
+
+func GetAllStreamsFromLanguage(language []string) []models.Stream {
+	var streams int = 0             // Stream count
+	var streamsList []models.Stream // Stream list
 
 	params := &twitch.GetStreamListParams{}
 	params.Language = language
@@ -143,10 +181,10 @@ func LoopStreams(job models.Job, language []string) error {
 		params.After = stream.Pagination.Cursor
 
 		streams += len(stream.Data)
-		UpsertStreams(stream.Data, job)
+		streamsList = append(streamsList, stream.Data...)
 	}
 
 	println("Streams finished:", streams)
 
-	return nil
+	return streamsList
 }
