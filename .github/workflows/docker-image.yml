@@ -34,4 +34,4 @@ jobs:
         SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       run: |
         docker-compose stop
-        docker-compose up -d --build
+        docker-compose up -d --build --no-cache
